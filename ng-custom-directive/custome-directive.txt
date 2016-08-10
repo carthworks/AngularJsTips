@@ -1,0 +1,61 @@
+Angular Uniqueness Custom Directive:
+-----------------------------------
+
+Html :
+------
+
+<div class="form-group form-md-line-input">
+												<input type="text" class="form-control" name="userName" id="userName" ng-model="userName" tabindex="1" onkeypress="return FnAllowAlphaNumericOnlyNospaceBetween(event)"  ng-required="true" ng-unique="{'domain':{'domainName':'#DOMAIN_NAME#'},'fieldValues':[{'key':'userName','value':'#INPUT_VALUE#'}]}" data-uniqueurl="<%=APICONF.users.usernameunique%>" />
+												<span class="help-block" ng-show="adduserForm.userName.$dirty && adduserForm.userName.$invalid || adduserForm.userName.$touched && adduserForm.userName.$invalid">
+													<code ng-show="adduserForm.userName.$error.required">User name not specified</code>
+													<code ng-show="adduserForm.userName.$error.unique">User name already exists</code>
+												</span>
+												<label class="col-md-12 control-label" for="form_control_1">User Name 
+													<span class="required" aria-required="true">* </span>
+												</label>
+												<div class="form-control-focus"></div>
+											</div>
+											
+											
+Javascript:
+-----------
+
+app.directive('ngUnique',['$http','AjaxService', function($http,AjaxService){
+
+	return {
+		require : 'ngModel',
+		link: function(scope,element,attrs,ngModel){
+			element.bind('blur', function(event){
+				if (!ngModel || !element.val()) return;
+				var keystr = attrs.ngUnique;
+				var currentValue = element.val();
+				if(keystr.indexOf('#DOMAIN_NAME#') > -1){
+					keystr = keystr.replace("#DOMAIN_NAME#",VarCurrentTenantInfo.getTenantDomain());
+				}
+				
+				if(keystr.indexOf('#INPUT_VALUE#') > -1){
+					keystr = keystr.replace("#INPUT_VALUE#",currentValue);
+				}
+				
+				var ObjParam = scope.$eval(keystr);
+				console.log(ObjParam);
+				var VarUrl = attrs.uniqueurl;
+				console.log(VarUrl);
+				AjaxService.FnMakePostRequest('/ajax'+VarUrl,JSON.stringify(ObjParam)).then(function(successResponse) {
+					console.log(successResponse.data);
+					var ObjExistStatus = successResponse.data;
+					if(ObjExistStatus.status == 'SUCCESS'){ // Does not exist in db
+						ngModel.$setValidity('unique', true);
+					} else if(ObjExistStatus.status == 'FAILURE') { // Exist in db
+						ngModel.$setValidity('unique', false);
+					}
+					
+				}).catch(function(errorResponse) {
+					console.log('oopsie', errorResponse);
+				});
+			});
+		}
+	}
+
+}]);
+
