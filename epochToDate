@@ -1,0 +1,16 @@
+import { Pipe, PipeTransform } from '@angular/core';
+@Pipe({
+  name: 'epochToDate'
+})
+export class EpochToDatePipe implements PipeTransform {
+  transform(value: any, args?: any): any {
+    return this.epochToDate(value);
+  }
+  epochToDate(epoch) {
+    console.log("Epoch Time - ", epoch);
+    if (epoch < 10000000000)
+      epoch *= 1000;
+    let fulldate = new Date(epoch + (new Date().getTimezoneOffset() * -1));
+    return fulldate.toString().substr(0, fulldate.toString().length - 15);
+  }
+}
