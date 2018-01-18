@@ -3,14 +3,36 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'epochToDate'
 })
 export class EpochToDatePipe implements PipeTransform {
+
   transform(value: any, args?: any): any {
-    return this.epochToDate(value);
-  }
-  epochToDate(epoch) {
-    console.log("Epoch Time - ", epoch);
-    if (epoch < 10000000000)
-      epoch *= 1000;
-    let fulldate = new Date(epoch + (new Date().getTimezoneOffset() * -1));
+      console.warn(value);
+  //    let unix_seconds = ((new Date(value)).getTime()) /1000;
+      let unix_seconds =value;
+    if (unix_seconds < 10000000000)
+      unix_seconds *= 1000;
+      let fulldate = new Date(unix_seconds + (new Date().getTimezoneOffset() * -1));
     return fulldate.toString().substr(0, fulldate.toString().length - 15);
+  //  return this.epochToDate(value);
   }
+
 }
+
+
+
+/*
+  jstime(epouch) {
+    var tmpDate = new Date(0);
+    let now = new Date(tmpDate.setUTCSeconds(epouch));
+    // year = "" + now.getFullYear();
+    //month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+    // day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+    let hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+    let minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+    let second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+    let msecond = "" + now.getMilliseconds(); if (msecond.length == 1) { msecond = "0" + msecond; }
+    //  return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    return hour + ":" + minute + ":" + second;
+
+  }
+
+*/
